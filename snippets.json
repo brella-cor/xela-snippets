@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Xela G1 - Project setup",
+    "prefix": "xelag1",
+    "description": "Imports, paths, and folders",
+    "source": "templates/general/g1_setup.py"
+  }
+]
