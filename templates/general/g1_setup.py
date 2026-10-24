@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import warnings
 
 start = Path.cwd().resolve()
 
@@ -14,9 +15,17 @@ ROOT = next(
 )
 
 if ROOT is None:
-    raise RuntimeError(
-        f"No project root found above {start}. "
-        "Open the notebook inside your Git repository."
+    ROOT = start
+    warnings.warn(
+        f"No Git repository or pyproject.toml found above {start}. "
+        f"Using the current directory as the project root: {ROOT}",
+        stacklevel=2,
+    )
+elif not (ROOT / ".git").exists():
+    warnings.warn(
+        f"No .git file or directory found in {ROOT}. "
+        "Continuing with the project root identified by pyproject.toml.",
+        stacklevel=2,
     )
 
 DATA = ROOT / "data"
@@ -38,8 +47,8 @@ directories = {
 }
 
 for name, path in directories.items():
-    print(f"{name:<16}: {path}")
+    print(f"{name:<18}: {path}")
 
-print(f"{'Python executable':<16}: {sys.executable}")
+print(f"{'Python executable':<18}: {sys.executable}")
 
 csv_files = sorted(RAW.glob("*.csv"))
