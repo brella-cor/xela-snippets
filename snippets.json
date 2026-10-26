@@ -11,6 +11,9 @@
         "description": "Reusable exploratory data analysis tools",
         "source": "templates/general/g3_eda.py"
     },
+
+
+
     {
         "name": "Xela S1 - RNG state",
         "prefix": "xelas1",
@@ -34,5 +37,32 @@
         "prefix": "xelas4",
         "description": "Correlated sampling and marginal transformations; requires S1",
         "source": "templates/synthetic/s4_corr_f_marg_transf.py"
+    },
+
+
+
+    {
+        "name": "Xela WRDS1 - WRDS connection initialisation",
+        "prefix": "xelawrds1",
+        "description": "Creates the shared WRDS connection; run once before the other WRDS modules in the same notebook",
+        "source": "templates/wrds/wrds1_init.py"
+    },
+    {
+        "name": "Xela WRDS2 - CRSP stock prices",
+        "prefix": "xelawrds2",
+        "description": "Pulls CRSP prices, shares outstanding, market caps, and company identifiers; filters by exchanges, minimum market cap in USD, dates, and optional PERMNOs; supports daily, monthly, and yearly observations; requires WRDS1",
+        "source": "templates/wrds/wrds2_price.py"
+    },
+    {
+        "name": "Xela WRDS3 - Compustat security data",
+        "prefix": "xelawrds3",
+        "description": "Pulls Compustat security prices and shares linked to PERMNOs through dated CCM links; filters by exchanges, minimum market cap, dates, and optional PERMNOs; supports field selection and daily, monthly, or yearly observations; requires WRDS1",
+        "source": "templates/wrds/wrds3_fundlt.py"
+    },
+    {
+        "name": "Xela WRDS4 - CRSP stock returns",
+        "prefix": "xelawrds4",
+        "description": "Pulls CRSP returns with optional delisting adjustments enabled by default; filters by exchanges, minimum market cap in millions of USD, dates, and optional PERMNOs; supports daily, monthly, and compounded yearly returns; requires WRDS1",
+        "source": "templates/wrds/wrds4_ret.py"
     }
 ]
