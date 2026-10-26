@@ -176,10 +176,8 @@ def pull_compustat_stocks(
         ORDER BY l.permno, a.datadate, a.gvkey, a.iid
     """
 
-
-
     df = conn.raw_sql(sql, params=params)
-    
+
     if not df.empty:
         df["permno"] = df["permno"].astype("int64")
         df["date"] = pd.to_datetime(df["date"])
@@ -207,18 +205,12 @@ def pull_compustat_stocks(
     return df.loc[:, requested_fields]
 
 
-# Example usage
-if __name__ == "__main__":
-    df = pull_compustat_stocks(
-        start_date="2020-01-01",
-        end_date="2024-12-31",
-        market_cap_floor=1_000_000_000,
-        granularity="monthly",
-        exchange_names=("NYSE", "AMEX", "NASDAQ"),
-        permnos=[14593, 10107],
-        fields=["permno", "date", "conm", "price", "mktcap_usd"],
-        # permnos=None pulls all linked securities.
-        # fields=None returns all fields in field_map.
-    )
-
-    print(df.head())
+compustat_stocks = pull_compustat_stocks(
+    start_date="2020-01-01",
+    end_date="2024-12-31",
+    market_cap_floor=1_000_000_000,  # USD: $1B
+    granularity="monthly",          # daily / monthly / yearly
+    exchange_names=("NYSE", "AMEX", "NASDAQ"),
+    permnos=None,                  # None = all linked securities
+    fields=None,                   # None = all fields in field_map
+)

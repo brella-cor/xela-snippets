@@ -1,16 +1,22 @@
 import pandas as pd
 import numpy as np
 
-EXCHCD = {"NYSE": 1, "AMEX": 2, "NASDAQ": 3}
+
+EXCHCD = {
+    "NYSE": 1,
+    "AMEX": 2,
+    "NASDAQ": 3,
+}
+
 
 def pull_crsp_stock_returns(
     start_date,
     end_date,
     market_cap_floor_mm=0.0,
-    granularity="daily",               # daily | monthly | yearly
+    granularity="daily",
     exchanges=("NYSE", "AMEX", "NASDAQ"),
     permnos=None,
-    include_delisting_returns=True,    # default ON
+    include_delisting_returns=True,
 ):
     granularity = granularity.lower().strip()
     exchanges = [e.upper() for e in exchanges]
@@ -19,12 +25,13 @@ def pull_crsp_stock_returns(
     if granularity == "daily":
         stock_table = "dseall" if include_delisting_returns else "dsf"
         names_table = "dsenames"
+
     elif granularity in ("monthly", "yearly"):
         stock_table = "mseall" if include_delisting_returns else "msf"
         names_table = "msenames"
+
     else:
         raise ValueError("granularity must be one of: daily, monthly, yearly")
-
 
     select_cols = """
         a.permno,
@@ -74,20 +81,27 @@ def pull_crsp_stock_returns(
     df = df[df["mktcap_mm"] >= market_cap_floor_mm].copy()
 
     if include_delisting_returns:
-        # If dlret exists, merge it into the period return
+        # Combine the regular return and delisting return.
         df["adj_ret"] = df["ret"]
         has_dl = df["dlret"].notna()
 
         both = has_dl & df["ret"].notna()
         only_dl = has_dl & df["ret"].isna()
 
-        df.loc[both, "adj_ret"] = (1 + df.loc[both, "ret"]) * (1 + df.loc[both, "dlret"]) - 1
+        df.loc[both, "adj_ret"] = (
+            (1 + df.loc[both, "ret"])
+            * (1 + df.loc[both, "dlret"])
+            - 1
+        )
+
         df.loc[only_dl, "adj_ret"] = df.loc[only_dl, "dlret"]
+
     else:
         df["adj_ret"] = df["ret"]
 
     if granularity == "yearly":
         df["year"] = df["date"].dt.year
+
         out = (
             df.dropna(subset=["adj_ret"])
               .groupby(["permno", "year"], as_index=False)
@@ -99,6 +113,18 @@ def pull_crsp_stock_returns(
               .sort_values(["permno", "year"])
               .reset_index(drop=True)
         )
+
         return out
 
     return df.sort_values(["permno", "date"]).reset_index(drop=True)
+
+
+crsp_returns = pull_crsp_stock_returns(
+    start_date="2020-01-01",
+    end_date="2024-12-31",
+    market_cap_floor_mm=1_000,      # USD millions: $1B
+    granularity="monthly",         # daily / monthly / yearly
+    exchanges=("NYSE", "AMEX", "NASDAQ"),
+    permnos=None,                 # None = all qualifying securities
+    include_delisting_returns=True,
+)
